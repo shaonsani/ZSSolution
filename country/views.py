@@ -3,7 +3,7 @@ from rest_framework.response import Response
 from rest_framework import status
 from component.helper.response_helper import SuccessResponse, ErrorResponse
 from country.models import Country, State, Address
-from country.serializers import CountrySerializer, StateSerializer, AddressSerializer
+from country.serializers import CountrySerializer, StateSerializer, AddressSerializer, AddressDetailSerializer
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.db.models import Q
 
@@ -108,3 +108,15 @@ class AddressAPI(APIView):
         else:
             response = ErrorResponse("Page, Limit must be provided!")
             return Response(response.to_json(), status=status.HTTP_400_BAD_REQUEST)
+
+
+class AddressDetail(APIView):
+
+    def get(self, request, pk):
+        try:
+            address = Address.objects.get(pk=pk)
+            serializer = AddressDetailSerializer(address)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        except Address.DoesNotExist:
+            response = ErrorResponse("Primary key for Address is invalid!")
+            return Response(response.to_json(), status=status.HTTP_404_NOT_FOUND)
