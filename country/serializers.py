@@ -22,3 +22,11 @@ class AddressSerializer(serializers.ModelSerializer):
     class Meta:
         model = Address
         fields = '__all__'
+
+class AddressDetailSerializer(serializers.ModelSerializer):
+    state = serializers.ReadOnlyField(source='state.name')
+    country = serializers.ReadOnlyField(source='state.country.name')
+
+    class Meta:
+        model = Address
+        fields = '__all__'
