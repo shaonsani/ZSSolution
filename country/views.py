@@ -39,5 +39,5 @@ class CountryAPI(APIView):
             }
             return Response(response, status=status.HTTP_200_OK)
         else:
-            response = ErrorResponse("Page, Limit & Album must be provided!")
+            response = ErrorResponse("Page, Limit must be provided!")
             return Response(response.to_json(), status=status.HTTP_400_BAD_REQUEST)
