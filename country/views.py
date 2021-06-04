@@ -5,6 +5,7 @@ from component.helper.response_helper import SuccessResponse, ErrorResponse
 from country.models import Country
 from country.serializers import CountrySerializer
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+from django.db.models import Q
 
 
 class CountryAPI(APIView):
@@ -12,8 +13,15 @@ class CountryAPI(APIView):
     def get(self, request):
         page = request.query_params.get('page')
         limit = request.query_params.get('limit')
+        name = request.query_params.get('name')
+        code = request.query_params.get('code')
+        q = Q()
         if page and limit:
-            countries = Country.objects.all()
+            if name:
+                q &= Q(name=name)
+            if code:
+                q &= Q(code=code)
+            countries = Country.objects.filter(q)
             paginator = Paginator(countries, limit)
             try:
                 countries = paginator.page(page)
