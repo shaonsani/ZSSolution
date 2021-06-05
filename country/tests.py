@@ -1,7 +1,7 @@
 import json
 from django.urls import reverse
 from country.models import Country, State, Address
-from country.serializers import CountrySerializer, StateSerializer, AddressSerializer
+from country.serializers import CountrySerializer, StateSerializer, AddressSerializer, AddressDetailSerializer
 from django.test import TestCase, Client
 from rest_framework import status
 
@@ -126,3 +126,24 @@ class AddressListTestCase(TestCase):
         # get API response
         response = client.get(f'{self.address_list_url}')
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+class AddressDetailTestCase(TestCase):
+
+    def setUp(self):
+        self.india = Country.objects.create(name='India', latitude=37.45, longitude=14.45, code='IND')
+        self.mumbai = State.objects.create(name='Mumbai', country=self.india)
+        self.address = Address.objects.create(name='baitul aman housing', house_number='580', road_number=12, state=self.mumbai)
+
+    def test_address_detail(self):
+        # get API response
+        response = client.get(reverse("address_detail", kwargs={'pk':self.address.pk}))
+        # get data from db
+        address = Address.objects.get(pk=self.address.pk)
+        serializer = AddressDetailSerializer(address)
+        self.assertEqual(response.data, serializer.data)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_address_detail_invalid(self):
+        # get API response
+        response = client.get(reverse("address_detail", kwargs={'pk':40}))
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
