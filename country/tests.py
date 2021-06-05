@@ -1,7 +1,7 @@
 import json
 from django.urls import reverse
-from country.models import Country, State
-from country.serializers import CountrySerializer, StateSerializer
+from country.models import Country, State, Address
+from country.serializers import CountrySerializer, StateSerializer, AddressSerializer
 from django.test import TestCase, Client
 from rest_framework import status
 
@@ -85,4 +85,44 @@ class StateListTestCase(TestCase):
     def test_state_list_error_response(self):
         # get API response
         response = client.get(f'{self.state_list_url}')
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+class AddressListTestCase(TestCase):
+    address_list_url = reverse("address_list")
+
+    def setUp(self):
+        self.india = Country.objects.create(name='India', latitude=37.45, longitude=14.45, code='IND')
+        self.mumbai = State.objects.create(name='Mumbai', country=self.india)
+        Address.objects.create(name='baitul aman housing', house_number='580', road_number=12, state=self.mumbai)
+
+    def test_address_list(self):
+        # get API response
+        response = client.get(f'{self.address_list_url}?page=1&limit=10')
+        # get data from db
+        address_list = Address.objects.all()
+        serializer = AddressSerializer(address_list, many=True)
+        self.assertEqual(response.data['data'], serializer.data)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_address_list_with_filter(self):
+        # get API response
+        response = client.get(f'{self.address_list_url}?page=1&limit=10&road_number=12')
+        # get data from db
+        address_list = Address.objects.filter(road_number=12)
+        serializer = AddressSerializer(address_list, many=True)
+        self.assertEqual(response.data['data'], serializer.data)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_address_list_with_blank_filter(self):
+        # get API response
+        response = client.get(f'{self.address_list_url}?page=1&limit=10&road_number=')
+        # get data from db
+        address_list = Address.objects.all()
+        serializer = AddressSerializer(address_list, many=True)
+        self.assertEqual(response.data['data'], serializer.data)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_address_list_error_response(self):
+        # get API response
+        response = client.get(f'{self.address_list_url}')
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
