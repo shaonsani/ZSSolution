@@ -6,9 +6,11 @@ from country.models import Country, State, Address
 from country.serializers import CountrySerializer, StateSerializer, AddressSerializer, AddressDetailSerializer
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.db.models import Q
+from rest_framework.permissions import IsAuthenticated
 
 
 class CountryAPI(APIView):
+    permission_classes = (IsAuthenticated,)
 
     def get(self, request):
         page = request.query_params.get('page')
@@ -44,6 +46,7 @@ class CountryAPI(APIView):
 
 
 class StateAPI(APIView):
+    permission_classes = (IsAuthenticated,)
 
     def get(self, request):
         page = request.query_params.get('page')
@@ -76,6 +79,7 @@ class StateAPI(APIView):
 
 
 class AddressAPI(APIView):
+    permission_classes = (IsAuthenticated,)
 
     def get(self, request):
         page = request.query_params.get('page')
@@ -111,6 +115,7 @@ class AddressAPI(APIView):
 
 
 class AddressDetail(APIView):
+    permission_classes = (IsAuthenticated,)
 
     def get(self, request, pk):
         try:
