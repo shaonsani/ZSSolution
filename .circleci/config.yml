@@ -24,3 +24,6 @@ jobs:
             export PYTHONUNBUFFERED=1
             pipenv shell
             python3 manage.py test
+      - store_artifacts:
+                path: test-reports/
+                destination: python_app
