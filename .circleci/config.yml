@@ -1,31 +1,27 @@
-version: 2.1
-
-orbs:
-  python: circleci/python@1.2
-
-workflows:
-  sample:
-    jobs:
-      - build-and-test
-
-
-jobs:
-  build-and-test: 
+version: 2 
+jobs: 
+  build: 
+    working_directory: ~/circleci-demo-python-django
     docker:
-      - image: cimg/python:3.8
-
-    steps:
-      - checkout
+      - image: circleci/python:3.7
+     
+    steps: 
+      - checkout 
+      - run: sudo chown -R circleci:circleci /usr/local/bin
+      - run: sudo chown -R circleci:circleci /usr/local/lib/python3.6/site-packages
       - run:
-          name: install dependencies
           command: |
             sudo pip install pipenv
             pipenv install
+      - save_cache: 
+          key: deps9-{{ .Branch }}-{{ checksum "Pipfile.lock" }}
+          paths:
+            - "venv"
       - run:
-          name: Run tests
           command: |
-            pipenv shell
-            python manage.py test
-      - store_artifacts:
-                path: test-reports/
-                destination: python_app
+            pipenv run python manage.py test
+      - store_test_results: 
+          path: test-results
+      - store_artifacts: 
+          path: test-results
+          destination: tr1
